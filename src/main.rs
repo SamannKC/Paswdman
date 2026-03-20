@@ -1,5 +1,4 @@
 use std::{env, fs};
-use hashing::{hash_string, Algorithm};
 use serde::{Deserialize, Serialize};
 use clap::Parser;
 use rand::prelude::*;
@@ -8,7 +7,7 @@ use rand::prelude::*;
 #[derive(Serialize, Deserialize, Debug)]
 struct Passwd<'a> {
     app: &'a str,
-    password: String,
+    password: &'a str,
 }
 
 #[derive(Parser, Debug)]
@@ -47,11 +46,9 @@ fn main() {
         password.push(random);
     }
 
-    let hashed_password = hash_password(password.clone()).unwrap();
-
     let passwd = Passwd {
         app: &args.name,
-        password: hashed_password,
+        password: &password,
     };
 
 
@@ -79,9 +76,3 @@ fn save_password(name: String, password: String) -> std::io::Result<()> {
 
     Ok(())
 }
-
-fn hash_password(password: String) -> Result<String, Box<dyn std::error::Error>> {
-    let hashed = hash_string(&password, Algorithm::Sha256)?;
-    Ok(hashed)
-}
-
