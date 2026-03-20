@@ -3,11 +3,10 @@ use serde::{Deserialize, Serialize};
 use clap::Parser;
 use rand::prelude::*;
 
-
 #[derive(Serialize, Deserialize, Debug)]
 struct Passwd<'a> {
     app: &'a str,
-    password: &'a str,
+    password: Vec<u8>,
 }
 
 #[derive(Parser, Debug)]
@@ -46,9 +45,11 @@ fn main() {
         password.push(random);
     }
 
+    let encrypted = encrypt(&password);
+
     let passwd = Passwd {
         app: &args.name,
-        password: &password,
+        password: encrypted,
     };
 
 
@@ -75,4 +76,21 @@ fn save_password(name: String, password: String) -> std::io::Result<()> {
     fs::write(path, password)?;
 
     Ok(())
+}
+
+fn encrypt(password: &str) -> Vec<u8>{
+    use ring::rand::{SecureRandom, SystemRandom};
+
+    let rng = SystemRandom::new();
+
+    let mut key = [0u8; 32];
+    rng.fill(&mut key).unwrap();
+
+    let encrypted: Vec<u8> = password
+        .bytes()
+        .map(|b| b ^ key[0])
+        .collect();
+
+    encrypted
+
 }
