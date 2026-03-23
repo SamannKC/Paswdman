@@ -12,15 +12,12 @@ struct Passwd<'a> {
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
-    /// length of the password
     #[arg(short, long, default_value_t = 12)]
     length: u8,
 
-    /// name of app
     #[arg(short, long, default_value = "SavedPassword")]
     name: String,
 
-    /// view password
     #[arg(short, long)]
     toggle: bool,
     // app_name: String,
