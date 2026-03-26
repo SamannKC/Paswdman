@@ -42,7 +42,8 @@ fn main() {
         password.push(random);
     }
 
-    let encrypted = encrypt(&password);
+    let key = user_to_key(&args.name);
+    let encrypted = encrypt(&password, key);
 
     let passwd = Passwd {
         app: &args.name,
@@ -75,19 +76,16 @@ fn save_password(name: String, password: String) -> std::io::Result<()> {
     Ok(())
 }
 
-fn encrypt(password: &str) -> Vec<u8>{
-    use ring::rand::{SecureRandom, SystemRandom};
-
-    let rng = SystemRandom::new();
-
-    let mut key = [0u8; 32];
-    rng.fill(&mut key).unwrap();
-
+fn encrypt(password: &str, key: u8) -> Vec<u8>{
     let encrypted: Vec<u8> = password
         .bytes()
-        .map(|b| b ^ key[0])
+        .map(|b| b ^ key)
         .collect();
 
     encrypted
 
+}
+
+fn user_to_key(username: &str) -> u8{
+    username.bytes().fold(0u8, |acc, b| acc.wrapping_add(b))
 }
